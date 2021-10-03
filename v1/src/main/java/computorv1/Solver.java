@@ -1,5 +1,7 @@
 package computorv1;
 
+import java.util.Arrays;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,21 +13,31 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @ToString
 public class Solver {
-	String args;
+
 	double x0;
 	double x1;
 	double x2;
+	int degree;
 
 	public Solver(String args) {
-		this.args = args;
 		x0 = 0;
 		x1 = 0;
 		x2 = 0;
+		degree = 0;
+		parse(args);
 	}
+
 	// "5 * X^0 - 6 * X^1 + X^2 = 0"
-	public void parse() {
+	private void parse(String args) {
 		boolean flag = false;
 		String[] arr = args.toLowerCase().split(" ");
+		Arrays.stream(arr)
+				.filter(str -> str.contains("x^"))
+				.filter(str -> str.charAt(2) > '0')
+				.forEach(str -> degree = Integer.parseInt(str.substring(2)));
+		if (degree < 1 || degree > 2) {
+			throw new RuntimeException(String.format("Unsolvable degree of polynomial: %d", degree));
+		}
 		for (int i = 0; i < arr.length; i++) {
 			switch (arr[i]) {
 				case "x^0":
@@ -58,8 +70,28 @@ public class Solver {
 	}
 
 	public void solve() {
-		if (x1 * x1 - 4 * x0 * x2 >= 0) {
+		switch (degree) {
+			case 1:
+				solveFirstDegree();
+				break;
+			case 2:
+				solveSecondDegree();
+				break;
+		}
+	}
 
+	private void solveFirstDegree() {
+		double res = -1 * x0 / x1;
+		System.out.printf("%.2f", res);
+	}
+
+	private void solveSecondDegree() {
+		double check = Math.pow(x1, 2) - 4 * x0 * x2;
+		if (check >= 0 && x2 != 0) {
+			double sqrt1 = Math.sqrt(check);
+			double res1 = (-1 * x1 + sqrt1) / (x2 * 2);
+			double res2 = (-1 * x1 - sqrt1) / (x2 * 2);
+			System.out.printf("x1 = %.2f, x2 = %.2f%n", res1, res2);
 		} else {
 			System.out.println("Unsolvable");
 		}

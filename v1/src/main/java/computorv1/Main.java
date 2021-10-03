@@ -8,7 +8,6 @@ public class Main {
 		}
 
 		Solver solver = new Solver(args[0]);
-		solver.parse();
 		solver.solve();
 		System.out.println(solver);
 //		solver.printResults();
