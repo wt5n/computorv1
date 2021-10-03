@@ -27,23 +27,25 @@ public class Solver {
 		parse(args);
 	}
 
-	// "5 * X^0 - 6 * X^1 + X^2 = 0"
 	private void parse(String args) {
 		boolean flag = false;
 		String[] arr = args.toLowerCase().split(" ");
-		Arrays.stream(arr)
-				.filter(str -> str.contains("x^"))
-				.filter(str -> str.charAt(2) > '0')
-				.forEach(str -> degree = Integer.parseInt(str.substring(2)));
-		if (degree < 1 || degree > 2) {
-			throw new RuntimeException(String.format("Unsolvable degree of polynomial: %d", degree));
-		}
+		Arrays.stream(arr).filter(str -> str.contains("x^")).forEach(str -> {
+			if (Integer.parseInt(str.substring(2)) < 0 || Integer.parseInt(str.substring(2)) > 2) {
+				throw new RuntimeException(String.format("Unsolvable degree of polynomial: %d",
+						Integer.parseInt(str.substring(2))));
+			}
+			if (degree < Integer.parseInt(str.substring(2))) {
+				degree = Integer.parseInt(str.substring(2));
+			}
+		});
 		for (int i = 0; i < arr.length; i++) {
 			switch (arr[i]) {
 				case "x^0":
 					x0 += calculateParameter(arr, i, flag);
 					break;
-				case "x^1":
+				case "x^1" :
+				case "x":
 					x1 += calculateParameter(arr, i, flag);
 					break;
 				case "x^2":
@@ -53,8 +55,17 @@ public class Solver {
 					flag = true;
 					break;
 				default:
+					checkDigits(arr, i, flag);
 			}
 		}
+	}
+
+	private void checkDigits(String[] arr, int i, boolean flag) {
+		try {
+			double a = Double.parseDouble(arr[i]) * (flag ? -1 : 1);
+			if (i + 1 == arr.length || (i + 1 < arr.length && !arr[i + 1].equals("*")))
+				x0 += a;
+		} catch (NumberFormatException ignored) {}
 	}
 
 	private double calculateParameter(String[] arr, int i, boolean flag) {
@@ -82,7 +93,7 @@ public class Solver {
 
 	private void solveFirstDegree() {
 		double res = -1 * x0 / x1;
-		System.out.printf("%.2f", res);
+		System.out.printf("%.2f\n", res);
 	}
 
 	private void solveSecondDegree() {
@@ -92,6 +103,8 @@ public class Solver {
 			double res1 = (-1 * x1 + sqrt1) / (x2 * 2);
 			double res2 = (-1 * x1 - sqrt1) / (x2 * 2);
 			System.out.printf("x1 = %.2f, x2 = %.2f%n", res1, res2);
+		} else if (x2 == 0) {
+			solveFirstDegree();
 		} else {
 			System.out.println("Unsolvable");
 		}
