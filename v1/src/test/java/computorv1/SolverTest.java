@@ -48,4 +48,15 @@ class SolverTest {
 		Solver solver = new Solver(str);
 		solver.solve();
 	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"5 * X^0 + 13 * X^1 + 3 * X^2 = 1 * X^0 + 1 * X^1",
+			"6 * X^0 + 11 * X^1 + 5 * X^2 = 1 * X^0 + 1 * X^1",
+			"5 * X^0 + 3 * X^1 + 3 * X^2 = 1 * X^0 + 0 * X^1"
+	})
+	void solveTestFromCheckList(String str) {
+		Solver solver = new Solver(str);
+		solver.solve();
+	}
 }

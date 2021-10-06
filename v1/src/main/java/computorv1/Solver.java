@@ -27,8 +27,31 @@ public class Solver {
 		parse(args);
 	}
 
+	public void solve() {
+		switch (degree) {
+			case 1:
+				solveFirstDegree();
+				break;
+			case 2:
+				solveSecondDegree();
+				break;
+		}
+	}
+
+	public void printResults() {
+		switch (degree) {
+			case 0:
+			case 1:
+			case 2:
+			default:
+		}
+	}
+
 	private void parse(String args) {
 		boolean flag = false;
+		if (args.length() < 5 || !args.contains("x^")) {
+			throw new RuntimeException("Incorrect parameter. Example: 3 * X^0 - 6 * X^1 + 3 * X^2 = 0");
+		}
 		String[] arr = args.toLowerCase().split(" ");
 		Arrays.stream(arr).filter(str -> str.contains("x^")).forEach(str -> {
 			if (Integer.parseInt(str.substring(2)) < 0 || Integer.parseInt(str.substring(2)) > 2) {
@@ -80,49 +103,26 @@ public class Solver {
 		return res * (flag ? -1 : 1);
 	}
 
-	public void solve() {
-		switch (degree) {
-			case 1:
-				solveFirstDegree();
-				break;
-			case 2:
-				solveSecondDegree();
-				break;
-		}
-	}
-
 	private void solveFirstDegree() {
 		double res = -1 * x0 / x1;
 		System.out.printf("%.2f\n", res);
 	}
 
 	private void solveSecondDegree() {
-		double check = Math.pow(x1, 2) - 4 * x0 * x2;
-		if (check >= 0 && x2 != 0) {
-			double sqrt1 = Math.sqrt(check);
-			double res1 = (-1 * x1 + sqrt1) / (x2 * 2);
-			double res2 = (-1 * x1 - sqrt1) / (x2 * 2);
-			System.out.printf("x1 = %.2f, x2 = %.2f%n", res1, res2);
-		} else if (x2 == 0) {
+		double discriminant = discriminant();
+		if (discriminant == 0) {
 			solveFirstDegree();
-		} else {
-			System.out.println("Unsolvable");
+		} else if (discriminant > 0) {
+			double sqrt = Math.sqrt(discriminant);
+			double res1 = (-1 * x1 + sqrt) / (x2 * 2);
+			double res2 = (-1 * x1 - sqrt) / (x2 * 2);
+			System.out.printf("x1 = %.2f, x2 = %.2f%n", res1, res2);
+		} else if (discriminant < 0) {
+			System.out.println("unlucky");
 		}
 	}
 
-	public void printResults() {
-		StringBuilder reducedForm = new StringBuilder();
-		if (x0 != 0) {
-			reducedForm.append(x0);
-			reducedForm.append(" * X^0 ");
-		}
-		if (x1 != 0) {
-			reducedForm.append(x1);
-			reducedForm.append(" * X^1 ");
-		}
-		if (x2 != 0) {
-			reducedForm.append(x2);
-			reducedForm.append(" * X^2 ");
-		}
+	private double discriminant() {
+		return Math.pow(x1, 2) - 4 * x0 * x2;
 	}
 }
